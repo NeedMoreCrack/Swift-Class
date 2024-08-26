@@ -1,0 +1,35 @@
+1. 如果你要在本地建立一個新的存儲庫並將它推送到 GitHub：
+
+echo "# repository-name" >> README.md
+git init
+git add README.md
+git commit -m "first commit"
+git branch -M main
+git remote add origin https://github.com/your-username/repository-name.git
+git push -u origin main
+
+
+
+2. 如果你已經有一個本地的存儲庫，並且想將它與 GitHub 上的新存儲庫連結：
+
+git remote add origin https://github.com/your-username/repository-name.git
+git branch -M main
+git push -u origin main
+
+
+
+3. 如果你想從 GitHub 克隆一個已存在的存儲庫：
+
+git clone https://github.com/your-username/repository-name.git
+
+這些指令適用於典型的工作流程。以下是每個指令的簡要說明：
+
+    echo "# repository-name" >> README.md: 創建一個 README.md 文件，並將存儲庫名稱作為標題寫入文件。
+    git init: 初始化一個新的 Git 存儲庫。
+    git add README.md: 將 README.md 文件添加到暫存區。
+    git commit -m "first commit": 提交變更，並加上提交信息 "first commit"。
+    git branch -M main: 將默認分支名稱改為 main。
+    git remote add origin <url>: 將遠程存儲庫地址添加到本地存儲庫中，並命名為 origin。
+    git push -u origin main: 將本地 main 分支推送到 GitHub 上的 origin 遠程存儲庫。
+
+你需要根據實際情況替換其中的 your-username 和 repository-name 來匹配你的 GitHub 帳號和存儲庫名稱。
