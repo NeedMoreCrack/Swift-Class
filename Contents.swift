@@ -428,10 +428,40 @@ class NamedShape {
 
     //init定義初始化方法，實作中必須為缺少初始值的屬性補值
     init(name: String) {
-       self.name = name
+        //當屬性名稱與參數名稱時，屬性前方必須加上self(類似this)關鍵字配合點語法呼叫對應的屬性
+        self.name = name
     }
-
+    //自定一個不太參數的初始化方法
+    init() {
+        name = "未知形狀"
+    }
+    
+    init(numberOfSides: Int,name: String) {
+        self.numberOfSides = numberOfSides
+        self.name = name
+    }
+    
+    //反初始化方法(deinitializer)不帶參數，不需要參數列表的小括號，此方法會在實體釋放前自動被呼叫，不能自行呼叫
+    deinit {
+        //提供實體釋放前清理所使用外部資源的程式，例如：關閉已開啟的外部檔案
+        //因為這此時實體還未真正釋放，可以在此存取屬性和方法
+        print("\(name)被釋放")
+    }
+    
     func simpleDescription() -> String {
-       return "A shape with \(numberOfSides) sides."
+       return "A shape:\(name) with \(numberOfSides) sides."
     }
 }
+
+//使用命名形狀類別
+let aShape:NamedShape? = NamedShape(name: "特殊形狀")
+aShape?.numberOfSides
+aShape?.numberOfSides = 10
+aShape?.simpleDescription()
+
+let cShape = NamedShape(numberOfSides: 5, name: "五邊形")
+cShape.simpleDescription()
+
+let bShape:NamedShape! = NamedShape()
+bShape.name
+bShape.simpleDescription()
