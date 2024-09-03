@@ -454,14 +454,50 @@ class NamedShape {
 }
 
 //使用命名形狀類別
-let aShape:NamedShape? = NamedShape(name: "特殊形狀")
+var aShape:NamedShape? = NamedShape(name: "特殊形狀")
 aShape?.numberOfSides
 aShape?.numberOfSides = 10
 aShape?.simpleDescription()
 
-let cShape = NamedShape(numberOfSides: 5, name: "五邊形")
-cShape.simpleDescription()
+//重新配置時，會先釋放原來的實體(原來的未知形狀)
+aShape = NamedShape(numberOfSides: 5, name: "五邊形")
+aShape?.simpleDescription()
 
-let bShape:NamedShape! = NamedShape()
+//主動清空包裝盒(清空選擇值)時，會釋放本身(五邊形被釋放)
+aShape = nil
+
+//bShape的型別為預先拆封的選擇值(implicitly upwrap)
+var bShape:NamedShape! = NamedShape(name:"新形狀")
 bShape.name
 bShape.simpleDescription()
+
+bShape = nil
+
+//選擇性串連呼叫(Optional Chaining)
+//無須拆封即可村子取選擇值的成員，串連呼叫的過程，在選擇值之處，必須出現問號
+//宣告人類別
+class Person {
+    //居住屬性
+    var residence: Residence?
+}
+
+//宣告居所類別
+class Residence {
+    //房間屬性
+    var numberOfRooms = 1
+}
+
+//實體化john
+let john = Person()
+john.residence = Residence()
+//以下此行會觸發執行階段錯誤，因為強制拆封了nil(residence)
+//let roomCount = john.residence!.numberOfRooms
+
+//選擇性串連的過程，只要有任一環節出現問號，最後串道的屬性或方法的回傳值，都會是選擇值，而且不管串連過程發生過幾次問號，最後的型別只會帶一個問號
+//if let(選擇性綁定)
+//選擇性串連，可以配合if let選擇性綁定語法自動拆封
+if let roomCount = john.residence?.numberOfRooms {
+    print("John's residence has \(roomCount) room(s).")
+} else {
+    print("Unable to retrieve the number of rooms.")
+}
