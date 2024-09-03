@@ -501,3 +501,52 @@ if let roomCount = john.residence?.numberOfRooms {
 } else {
     print("Unable to retrieve the number of rooms.")
 }
+
+//繼承()
+/*
+ 子類別(subclass)是在類別名稱之後包含父類名稱，並用冒號分隔
+ 類別不需要繼承自任何標準的跟類別(root class)，因此可以根據需要包含或省略父類別
+ 子類別可以複寫父類別方法中的實作，並以關鍵字override做標記
+*/
+class Square:NamedShape {  //繼承自NameShape父類別
+    var sideLength:Double  //單邊長度屬性
+    /*
+        指定為初始化方法有兩種：
+        1.指定初始化方法：會為所有屬性準備初始值，指定初始化方法必須總是向上代理(總是向上呼叫到父類別的指定初始化方法)
+        2.便利初始化方法：必須橫向代理(delegate cross)(便利初始化方法只能呼叫自己類別中的便利初始化方法or指定初始化方法)
+        Swift對初始化方法之間的代理呼叫應遵守以下三個規則：
+        規則一
+        指定初始化方法必須直接呼叫父類別的指定初始化方法(不能父類別的便利初始化方法)
+        
+        規則二
+        便利初始化方法必須呼叫同一類別中的另一個初始化方法
+     
+        規則三
+        便利初始化方法最終必須呼叫指定的初始化方法
+    */
+    //宣告指定初始化方法：此方法會為所有屬性補上初始值，包含呼叫父類別的初始化方法
+    init(sideLength:Double,name:String) {
+        //Step1.先針對自己的屬性給予初始值
+        self.sideLength = sideLength
+        //Step2.呼叫父類別的初始化方法，為父類別繼承過來的屬性補上初始值
+        super.init(name: name)  //至此呼叫只能呼叫父類別的指定初始化方(不能呼叫便利初始化方法)
+        //Step3.當所有屬性都有初始值之後，記憶體即配置完成，才能進一步更改屬性的初始值(此步驟可省略)
+        numberOfSides = 4
+    }
+    
+    //便利初始化(convenience)
+    convenience override init() {
+        //橫向代理呼叫到自己的便利初始化方法
+        self.init(sideLength: 5, name: "預設正方形")
+    }
+    
+    
+    //計算正方形面積的方法
+    func area() -> Double {
+        return sideLength * sideLength
+    }
+    
+    override func simpleDescription() -> String {
+        return "A square with sides of length \(sideLength)."
+    }
+}
