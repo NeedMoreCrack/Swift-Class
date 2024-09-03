@@ -550,3 +550,75 @@ class Square:NamedShape {  //繼承自NameShape父類別
         return "A square with sides of length \(sideLength)."
     }
 }
+var showArea = Square()
+showArea.simpleDescription()
+
+/*
+ 練習11 建立一個NameShape的子類別，名為Circle類別，該子類別以半徑(radius)和名稱(name)作為其初始化方法的參數
+ 在Circle類別上實作area()方法計算圓面積，和複寫simpleDescriptionDescriprion()方法，回傳與而行的資訊
+ 計算圓面積公式：π * 半徑平方
+*/
+class Circle:NamedShape {
+    var radius:Double
+    
+    init(radius:Double,name:String) {
+        self.radius = radius
+        super.init(name:name)
+        numberOfSides = 1
+    }
+    
+    func area() -> Double {
+        return Double.pi * radius * radius
+    }
+    
+    override func simpleDescription() -> String {
+        return "面積：\(String(format:"%.2f",area())),半徑：\(radius),面積：\(name)"
+    }
+}
+var showCircle = Circle(radius: 6, name: "小圓")
+showCircle.simpleDescription()
+
+//儲存屬性&計算屬性(Stored Property & Computed Property)
+class EquilateralTriangle:NamedShape {
+    var sideLength:Double = 0.0
+    
+    init(sideLength:Double,name:String) {
+        super.init(name: name)
+        numberOfSides = 3
+        self.sideLength = sideLength
+    }
+    //總長度(計算屬性)
+    var perimeter:Double {  //計算屬性只能宣告為var，不能宣告為let，而且必須明確宣告型別
+        //取值段
+        get {
+            return 3.0 * sideLength
+        }
+        //設值段 (預設以newValue常數接取設定值)
+        set {
+            //以總長度回算單邊長度
+            sideLength = newValue / 3.0
+            //計算屬性不能存值，存值只能存在儲存屬性
+        }
+    }
+    
+    /*
+     練習11
+     計算三角形面積使用海龍公式：a,b,c是三角形的三邊長度，s=(a+b+c)/2，計算s*(s-a)*(s-b)*(s-c)，將此值開根號sqrt()
+    */
+    //以唯獨計算屬性回傳三角形面積
+    var triangleArea:Double {
+        get {
+            let s = self.perimeter / 2
+            return sqrt(s*(s-self.sideLength)*(s-self.sideLength)*(s-self.sideLength))
+        }
+    }
+    
+    override func simpleDescription() -> String {
+        return "An equilateral triangle with sides of length \(sideLength)."
+    }
+}
+//實體化EquilateralTriangle類別
+var triangle = EquilateralTriangle(sideLength: 3.1, name: "a triangle")
+print(triangle.perimeter)  //運作取值段(get)
+triangle.perimeter = 9.9  //運作設值段(set)
+print(triangle.sideLength)
