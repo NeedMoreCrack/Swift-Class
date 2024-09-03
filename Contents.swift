@@ -402,6 +402,7 @@ sortedArray3
 */
 //使用class後跟類別名稱來建立類別
 class Shape {
+    //當類別中所有屬性都有初始值時，類別會自動得到一個不帶參數的初始化方法
     var numberOfSides = 0  //形狀有幾邊（可讀可寫的屬性）
     let dimention = "3D"  //形狀的維度（唯獨屬性 read-only/get-only）
     func simpleDescription() -> String {
@@ -415,7 +416,22 @@ class Shape {
 
 
 //透過在類別名稱後面加上括號來建立類別的實體(instance)。使用點語法存取實體的屬性和方法。
-var shape = Shape()  //allocate(分派)記憶體空間，形成實體(instance) 即執行initializer(建構子/初始化方法)
+var shape = Shape() //使用自動得到的不帶參數的初始化方法配置實體 //allocate(分派)記憶體空間，形成實體(instance) 即執行initializer(建構子/初始化方法)
 shape.numberOfSides = 7
 var shapeDescription = shape.simpleDescription()
 shape.shapWithHeight(height: 30)
+
+class NamedShape {
+    //當有任一屬性沒有初始值時，類別就沒有自動賦予的初始化方法，初始化方法必須自定，且一定要為缺少初始值的屬性補值
+    var numberOfSides: Int = 0  //形狀的邊數屬性
+    var name: String  //形狀名稱屬性
+
+    //init定義初始化方法，實作中必須為缺少初始值的屬性補值
+    init(name: String) {
+       self.name = name
+    }
+
+    func simpleDescription() -> String {
+       return "A shape with \(numberOfSides) sides."
+    }
+}
