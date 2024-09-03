@@ -33,3 +33,8 @@ git clone https://github.com/your-username/repository-name.git
     git push -u origin main: 將本地 main 分支推送到 GitHub 上的 origin 遠程存儲庫。
 
 你需要根據實際情況替換其中的 your-username 和 repository-name 來匹配你的 GitHub 帳號和存儲庫名稱。
+
+
+4. 合併(Merge)
+	合併將會把遠程的提交和本地提交合併到一起
+	git pull --no-rebase origin main
