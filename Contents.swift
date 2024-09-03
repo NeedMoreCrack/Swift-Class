@@ -390,15 +390,32 @@ let sortedArray3 = numbers.sorted {
 sortedArray3
 
 //物件和類別(Objects and Classes)
+//類別和實體(Class and Instance)
 /*
  使用class後跟類別名稱來建立類別
  類別中的屬性(property)宣告的編寫方式與常數或變數宣告相同
  方法和函式的宣告方式相同
+ 注意：
+    類別的實體(instance)傳統上稱為物件(object)
+    Swift成使語言在
+    結構(structure)和類別(class)的功能比其他程式語言更接近，大部分使用的實體(instance)來描述型別的記憶
 */
 //使用class後跟類別名稱來建立類別
 class Shape {
-    var numberOfSides = 0
+    var numberOfSides = 0  //形狀有幾邊（可讀可寫的屬性）
+    let dimention = "3D"  //形狀的維度（唯獨屬性 read-only/get-only）
     func simpleDescription() -> String {
         return "A shape with \(numberOfSides) sides."
     }
+    //練習10 使用let新增一個常數屬性，並新增另一個帶有參數的方法
+    func shapWithHeight(height:Int) -> String {
+        return "這是\(dimention)形狀，高度\(height)公分"
+    }
 }
+
+
+//透過在類別名稱後面加上括號來建立類別的實體(instance)。使用點語法存取實體的屬性和方法。
+var shape = Shape()  //allocate(分派)記憶體空間，形成實體(instance) 即執行initializer(建構子/初始化方法)
+shape.numberOfSides = 7
+var shapeDescription = shape.simpleDescription()
+shape.shapWithHeight(height: 30)
