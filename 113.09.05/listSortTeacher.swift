@@ -13,8 +13,7 @@ let 雞歪中間值:[String.SubSequence]    // 等一下呼叫 split(seperated:.
 
 var 變成Int分數的值:[Int] = []
 
-for x in 雞歪中間值
-{
+for x in 雞歪中間值 {
     變成Int分數的值.append(Int(x)!)    // Int(...)
 }
 
@@ -24,8 +23,7 @@ print(變成Int分數的值)
 
 // 找最不幸
 var 關鍵索引 = 0
-for 索引 in 0..<變成Int分數的值.count
-{
+for 索引 in 0..<變成Int分數的值.count {
     if  變成Int分數的值[索引] >= 60{
         關鍵索引 = 索引     // 最幸運的索引位置
         break             // break 出現在迴圈就會終止迴圈繼續
