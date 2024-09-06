@@ -672,7 +672,7 @@ triangle2.computedProperty
 //----------列舉和結構(Enumerations and Structures)----------
 //類別使用enum關鍵字建立列舉，與類別和所有其他命名型別一樣，列舉可以具有與其關聯的屬性和方法
 //定義撲克牌的列舉
-enum Rank: Int {  //此列舉有對應Int型別的原始值(rawvalue)
+enum Rank: Int,CaseIterable {  //此列舉有對應Int型別的原始值(rawvalue)
     //當列舉帶原始值，會得到自動得到一個帶rawValue參數的可失敗初始化方法
     case ace = 1  //指定case起算值為1(預設是0)
     case two, three, four, five, six, seven, eight, nine, ten
@@ -696,6 +696,21 @@ enum Rank: Int {  //此列舉有對應Int型別的原始值(rawvalue)
         default:
             return String(self.rawValue)
         }
+    }
+    
+    //定義型別方法(type method)，回傳一整副撲克牌
+    static func fullDeckOfCardV2() -> [Card] {
+        var cards = [Card]()
+        //跑牌數
+        for rank in Rank.allCases {
+            //跑花色
+            for suit in Suit.allCases {
+                //以Card結構的方法來準備單張撲克牌
+                let card = Card(rank: rank, suit: suit)
+                cards.append(card)
+            }
+        }
+        return cards
     }
 }
 //產生列舉實體 方法一 以列舉的型別點出各別的case
@@ -769,7 +784,7 @@ bDirction = CompassPoint2(rawValue: "south")
 bDirction?.rawValue
 
 //定義撲克牌的花色
-enum Suit {
+enum Suit: CaseIterable {
        //黑桃     紅心     方塊       梅花
     case spades, hearts, diamonds, clubs
 
@@ -907,3 +922,24 @@ struct Card {
 //實體化card結構。使用"逐一成員的初始化方法"
 let threeOfSpades = Card(rank: .three, suit: .spades)
 let threeOfSpadesDescription = threeOfSpades.simpleDescription()
+
+//練習14 寫一個函式，回傳一個包含整副撲克牌的陣列，其中每個牌數和花色的組合都是一張牌
+//定義型別方法(type method)，回傳一整副撲克牌
+func fullDeckOfCard() -> [Card] {
+    var cards = [Card]()
+    //跑牌數
+    for rank in Rank.allCases {
+        //跑花色
+        for suit in Suit.allCases {
+            //以Card結構的方法來準備單張撲克牌
+            let card = Card(rank: rank, suit: suit)
+            cards.append(card)
+        }
+    }
+    return cards
+}
+
+let deck = fullDeckOfCard()
+for card in deck {
+    print(card.simpleDescription())
+}
