@@ -723,6 +723,11 @@ enum TemperatureUnit {
     }
 }
 
+//以選擇性綁定來接取
+if let convertedRank = Rank(rawValue: 3) {
+    let threeDescription = convertedRank.simpleDescription()
+}
+
 //練習12 撰寫一個函式，藉由比較兩個Rank的原始值來比較他們的大小
 func compare(rank1:Rank,rank2:Rank) -> String {
     if rank1.rawValue > rank2.rawValue {
@@ -737,3 +742,168 @@ func compare(rank1:Rank,rank2:Rank) -> String {
 compare(rank1: .eight, rank2: Rank(rawValue: 13)!)
 compare(rank1: .eight, rank2: .five)
 compare(rank1: .eight, rank2: Rank(rawValue: 8)!)
+
+//不帶原始值的列舉
+enum CompassPoint1 {
+    case north
+    case south
+    case east
+    case west
+}
+
+//產生列舉實體 方法一 以列舉的型別點出各別的case(沒有 方法2 的初始化函式可以使用)
+let aDirction = CompassPoint1.north
+
+//帶原始值的列舉
+enum CompassPoint2:String {  //代String的原始值，預設以case的名稱為原始值
+    case north
+    case south
+    case east
+    case west
+}
+
+//產生列舉實體 方法一
+var bDirction:CompassPoint2? = CompassPoint2.east
+bDirction?.rawValue
+bDirction = CompassPoint2(rawValue: "south")
+bDirction?.rawValue
+
+//定義撲克牌的花色
+enum Suit {
+       //黑桃     紅心     方塊       梅花
+    case spades, hearts, diamonds, clubs
+
+    func simpleDescription() -> String {
+        switch self {
+        case .spades:
+            return "♠️"
+        case .hearts:
+            return "♥️"
+        case .diamonds:
+            return "♦️"
+        case .clubs:
+            return "♣️"
+        }
+        //當case已經列舉完所有狀況實，不需要default
+    }
+
+    //練習13 添加一個color()方法，為黑桃和梅花回傳"黑色"，為紅心和方塊回傳為"紅色"
+    func color() -> String {
+        switch self {
+            case .hearts, .diamonds:
+                return "紅色"
+            case .spades, .clubs:
+                return "黑色"
+        }
+    }
+}
+let hearts = Suit.hearts
+let heartsDescription = hearts.simpleDescription()
+
+//列舉的關聯值(Associated Values)
+//定義條碼的列舉
+enum Barcode {
+    case upc(Int, Int, Int, Int)    //一維條碼：1碼+5碼+5碼+1碼檢查碼
+    case qrCode(String)             //二維條碼：最多到2953個字元
+}
+
+//產生一維條碼的實體
+var productBarcode = Barcode.upc(8, 85909, 51226, 3)
+
+//產生二維條碼的實體
+productBarcode = .qrCode("ABCDEFGHIJKLMNOP")
+
+//定義伺服器回應的列舉
+enum ServerResponse {
+    case result(String, String)     //回應日出和日落時間
+    case failure(String)            //回應錯誤訊息
+    case tide(String,String)        //回應漲潮(rining)和退潮(ebb)
+    
+    func simpleDesctipttion() -> String {
+        switch self {
+            case let .result(sunrise, sunset):
+                return "Sunrise is at \(sunrise) and sunset is at \(sunset)."
+            case let .failure(message):
+                return "Failure...  \(message)"
+            case let .tide(rining,ebb):
+                return "漲潮\(rining)，退潮\(ebb)"
+        }
+    }
+}
+
+//產生列舉實體即其對應的關聯值
+let success = ServerResponse.result("6:00 am", "8:09 pm")
+let failure = ServerResponse.failure("Out of cheese.")
+success.simpleDesctipttion()
+failure.simpleDesctipttion()
+
+//原範例
+//switch success {
+//    case let .result(sunrise, sunset):
+//        print("Sunrise is at \(sunrise) and sunset is at \(sunset).")
+//    case let .failure(message):
+//        print("Failure...  \(message)")
+//    case let .tide(rining,ebb):
+//        print("\(rining) ， \(ebb)")
+//}
+//
+//switch failure {
+//    case let .result(sunrise, sunset):
+//        print("Sunrise is at \(sunrise) and sunset is at \(sunset).")
+//    case let .failure(message):
+//        print("Failure...  \(message)")
+//    case let .tide(rining,ebb):
+//        print("\(rining) ， \(ebb)")
+//}
+
+//練習14 在SserverResponse中加入第三個case
+let tide = ServerResponse.tide("6:30am", "7:00pm")
+tide.simpleDesctipttion()
+//switch failure {
+//    case let .result(sunrise, sunset):
+//        print("Sunrise is at \(sunrise) and sunset is at \(sunset).")
+//    case let .failure(message):
+//        print("Failure...  \(message)")
+//    case let .tide(rining,ebb):
+//        print("\(rining) ， \(ebb)")
+//}
+
+//列出列舉的所有case(Iterating over Enumeration Cases)
+//定義飲料列舉，以冒號引入CaseIterable協定，列舉型別會自動得到一個allCases屬性
+enum Beverage: CaseIterable {
+    case coffee, tea, juice
+}
+
+//allCases屬性可以取得列舉中所有case的陣列(此數性為"型別屬性" Type property)
+Beverage.allCases
+
+//取得case陣列的個數
+let numberOfChoices = Beverage.allCases.count
+print("\(numberOfChoices) beverages available")
+
+//for-in 迴圈列出列舉的所有case
+for beverage in Beverage.allCases {
+    print(beverage)
+}
+
+for (index,value) in Beverage.allCases.enumerated() {
+    print("Case index:\(index),value:\(value)")
+}
+
+//----------結構(Structure)----------
+//使用struct關鍵字建立結構。結構支持許多與類別相同的行為，包括方法和初始值設定項。結構和類別之間最重要的區別之一是結構在程式碼中傳遞時總是被複製，但類別是透過引用傳遞的
+//定義撲克牌結構
+struct Card {
+    //宣告牌數結構成員
+    var rank: Rank
+    //宣告花色結構成員
+    var suit: Suit
+    //結構 "一定會自動得到一個逐一成員的初始化方法"(member-wise initializer)
+    //列印單張撲克牌資訊的方法
+    func simpleDescription() -> String {
+        return "The \(rank.simpleDescription())\(suit.simpleDescription())"
+    }
+}
+//實體化card結構。使用"逐一成員的初始化方法"
+let threeOfSpades = Card(rank: .three, suit: .spades)
+let threeOfSpadesDescription = threeOfSpades.simpleDescription()
