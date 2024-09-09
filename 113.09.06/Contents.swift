@@ -1105,3 +1105,20 @@ let someResolution = Resolution()
 let someVideoMode = VideoMode()
 print("The width of someResolution is \(someResolution.width)")
 print("The width of someVideoMode is \(someVideoMode.resolution.width)")
+someVideoMode.resolution.width = 1280
+print("The width of someVideoMode is now \(someVideoMode.resolution.width)")
+
+//使用結構成員的初始化方法產生結構實體(此記憶體配置空間只會有vga使用)
+let vga = Resolution(width: 640, height: 480)
+
+//----------結構和列舉是值型別(Structures and Enumerations Are Value Types)----------
+/*
+ 值型別是一種型別，其值在傳遞給變數或常數或傳遞給函式的引數時會複製一份
+ 
+ Swift中的所有基本型別 整數 浮點數 布林值 字串 陣列和字典 都是值型別 並在幕後以結構的形式實作
+ 所有的結構和列舉都是Swift中的值型別 這意味建立任何結構和列舉的實體，以及他們作為屬性的任何值類型在程式碼中傳遞時始終會被複製
+ 
+*/
+
+let hd = Resolution(width: 1920, height: 1080)
+var cinema = hd     //此行為為複製，會產生原來的HD和新的cinema為兩個獨立的記憶體配置空間
