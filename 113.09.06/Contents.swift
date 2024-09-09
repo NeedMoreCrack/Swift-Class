@@ -969,3 +969,49 @@ class DataManager {
 let manager = DataManager()
 manager.data.append("Some data")
 manager.data.append("Some more data")
+
+print(manager.importer.filename)
+// the DataManager class would provide data management functionality here
+//資料管理員類別在此處才第一次使用，Importer惰性儲存屬性才會被初始化
+
+//----------型別屬性(Type Properties) vs 實體屬性(Instance Propertier)----------
+struct SomeStructure {
+    //定義結構成員(其性質為實體屬性)
+    var a:Int
+    var b:String
+    //以static關鍵字定義型別的儲存屬性和計算屬性
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 1
+    }
+}
+
+let someStructure = SomeStructure(a:2,b:"test")
+//結構與類別不同，在傳遞的過程是複製一份，所以本身為常數時，連結構成員也不能變動
+//someStructure.a = 3
+//Cannot assign to property: 'someStructure' is a 'let' constant
+
+//呼叫實體屬性
+someStructure.a
+someStructure.b
+
+SomeStructure.storedTypeProperty
+SomeStructure.computedTypeProperty
+
+enum SomeEnumeration {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 6
+    }
+}
+
+
+class SomeClass {
+    static var storedTypeProperty = "Some value."
+    static var computedTypeProperty: Int {
+        return 27
+    }
+    class var overrideableComputedTypeProperty: Int {
+        return 107
+    }
+}
