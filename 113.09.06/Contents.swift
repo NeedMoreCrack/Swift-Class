@@ -959,9 +959,10 @@ class DataImporter {
 class DataManager {
     //墮性儲存屬性：此屬性值是在DataManager類別實體初始化完成之後才會準備，且其值只有在第一次呼叫此屬性才會準備，因為準備此屬性值會較耗用資源
     lazy var importer = DataImporter()
-    //讀取外部檔案後的存放屬性
+    //寫入外部檔案之前的陣列
     var data: [String] = []
     // the DataManager class would provide data management functionality here
+    //資料管理員類別在此處才第一次使用，Importer惰性儲存屬性才會被初始化
 }
 
 //測試
