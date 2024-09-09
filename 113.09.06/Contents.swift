@@ -783,7 +783,7 @@ bDirction?.rawValue
 bDirction = CompassPoint2(rawValue: "south")
 bDirction?.rawValue
 
-//定義撲克牌的花色
+//定義撲克牌的花色的列舉
 enum Suit: CaseIterable {
        //黑桃     紅心     方塊       梅花
     case spades, hearts, diamonds, clubs
@@ -925,7 +925,7 @@ let threeOfSpadesDescription = threeOfSpades.simpleDescription()
 
 //練習14 寫一個函式，回傳一個包含整副撲克牌的陣列，其中每個牌數和花色的組合都是一張牌
 //定義型別方法(type method)，回傳一整副撲克牌
-func fullDeckOfCard() -> [Card] {
+func fullDeckOfCardV1() -> [Card] {
     var cards = [Card]()
     //跑牌數
     for rank in Rank.allCases {
@@ -939,7 +939,32 @@ func fullDeckOfCard() -> [Card] {
     return cards
 }
 
-let deck = fullDeckOfCard()
+let deck = fullDeckOfCardV1()
 for card in deck {
     print(card.simpleDescription())
 }
+
+//---------------補充 惰性儲存屬性(Lazy Stored Properties)---------------
+//定義資料匯入類別：開檔案，存檔案
+class DataImporter {
+    /*
+    DataImporter is a class to import data from an external file.
+    The class is assumed to take a nontrivial amount of time to initialize.
+    */
+    var filename = "data.txt"
+    // the DataImporter class would provide data importing functionality here
+}
+
+
+class DataManager {
+    //墮性儲存屬性：此屬性值是在DataManager類別實體初始化完成之後才會準備，且其值只有在第一次呼叫此屬性才會準備，因為準備此屬性值會較耗用資源
+    lazy var importer = DataImporter()
+    //讀取外部檔案後的存放屬性
+    var data: [String] = []
+    // the DataManager class would provide data management functionality here
+}
+
+//測試
+let manager = DataManager()
+manager.data.append("Some data")
+manager.data.append("Some more data")
