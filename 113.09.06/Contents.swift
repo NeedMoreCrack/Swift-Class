@@ -984,19 +984,30 @@ struct SomeStructure {
     static var computedTypeProperty: Int {
         return 1
     }
+    func someInstanceMethod() {
+        print("這是父類別的someInstanceMethod")
+    }
+    //以static關鍵字定義型別方法
+    static func someTypeMethod() {
+        print("這是父類別的someTypeMethod")
+    }
 }
 
 let someStructure = SomeStructure(a:2,b:"test")
 //結構與類別不同，在傳遞的過程是複製一份，所以本身為常數時，連結構成員也不能變動
 //someStructure.a = 3
-//Cannot assign to property: 'someStructure' is a 'let' constant
+//Errot:Cannot assign to property: 'someStructure' is a 'let' constant
 
 //呼叫實體屬性
 someStructure.a
 someStructure.b
-
+//呼叫型別屬性
 SomeStructure.storedTypeProperty
 SomeStructure.computedTypeProperty
+//呼叫實體方法
+someStructure.someInstanceMethod()
+//呼叫型別方法
+SomeStructure.someTypeMethod()
 
 enum SomeEnumeration {
     static var storedTypeProperty = "Some value."
@@ -1007,11 +1018,54 @@ enum SomeEnumeration {
 
 
 class SomeClass {
+    //定義結構成員(其性質為實體屬性)
+    var a:Int = 0
+    var b:String = ""
+    //以static關鍵字定義型別的儲存屬性和計算屬性
     static var storedTypeProperty = "Some value."
     static var computedTypeProperty: Int {
         return 27
     }
+    //以class關鍵字定義型別的計算屬性(class不可用於儲存屬性)
     class var overrideableComputedTypeProperty: Int {
         return 107
     }
+    //Error:Class stored properties not supported in classes; did you mean 'static'?
+    //class var test = 0
+    //定義型別方法
+    func someInstanceMethod() {
+        print("這是父類別的someTypeMethod")
+    }
+    //以class關鍵字定義可複寫的型別方法
+    class func someTypeMethod() {
+        print("這是父類別的someTypeMethod")
+    }
+    //以static關鍵字定義不可覆寫型別方法，只能繼承
+    static func someImmutableTypeMethod() {
+        print("這是父類別的someImmutableTypeMethod")
+    }
 }
+
+class SomeSubClass:SomeClass {
+    //子類別自己的儲存屬性
+    var myProperty = 123
+    //覆寫父類別的型別計算屬性
+    override class var overrideableComputedTypeProperty: Int {
+        return 999
+    }
+    //覆寫父類別的實體方法
+    override func someInstanceMethod() {
+        print("這是子類別的someInstanceMethod")
+    }
+    //覆寫父類別的型別方法(可以用class或static覆寫，已決定是否繼續被其子類別覆寫)
+    class override func someTypeMethod() {
+        print("這是子類別的someTypeMethod")
+    }
+    //Error:Cannot override static method
+//    static func someImmutableTypeMethod() {
+//        
+//    }
+}
+
+//
+
