@@ -1122,3 +1122,7 @@ let vga = Resolution(width: 640, height: 480)
 
 let hd = Resolution(width: 1920, height: 1080)
 var cinema = hd     //此行為為複製，會產生原來的HD和新的cinema為兩個獨立的記憶體配置空間
+cinema.width = 2048
+print("cinema is now \(cinema.width) pixels wide")
+print("hd is still \(hd.width) pixels wide")
+    //原來的1920寬度不會跟著一起更動，為獨立的記憶體配置空間
