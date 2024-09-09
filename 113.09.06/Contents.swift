@@ -1067,5 +1067,41 @@ class SomeSubClass:SomeClass {
 //    }
 }
 
-//
+/*
+-----補充 比較列舉 結構和類別-----
+Swift中的列舉 結構和類別有很多共同點 兩者都可以：
 
+    1.定義屬性來儲存值(property)
+    2.定義提供功能的方法(method)
+    3.定義標著(subscription)已使用標著語法提共對其值的存取
+    4.定義初始化方法以設定其初始狀態
+    5.進行擴展以將其功能擴展到預設實作之外(為別人的實作衍伸額外功能)
+    6.遵守協議已提供某種型別的標準功能
+*/
+
+/*
+類別具有列舉和結構所沒有的附加功能：
+ 1.繼承讓一個類別能夠繼承另一個類別的特性
+ 2.型別轉換(type casting)使您能夠在運行時檢查記憶體中(check)和解釋(interpret)記憶體中類別實體的型別
+ 3.反初始化方法(deinitializer)讓類別的實體能夠釋放他以占用的任何資源
+ 4.引用技術(reference counting)允許對一個類別實體進行多個引用
+*/
+
+struct Resolution {
+    //以下結構都有初始值，所以會得到更多個初始化方法
+    var width = 0
+    var height = 0
+}
+//定義影像模式類別
+class VideoMode {
+    var resolution = Resolution()    //解析度結構
+    var interlaced = false           //預設非交錯模式
+    var frameRate = 0.0             //畫面的更新頻率
+    var name: String?               //影像模式名稱
+}
+
+//產生結構和類別的實體
+let someResolution = Resolution()
+let someVideoMode = VideoMode()
+print("The width of someResolution is \(someResolution.width)")
+print("The width of someVideoMode is \(someVideoMode.resolution.width)")
