@@ -1098,6 +1098,14 @@ class VideoMode {
     var interlaced = false           //預設非交錯模式
     var frameRate = 0.0             //畫面的更新頻率
     var name: String?               //影像模式名稱
+    
+    deinit {
+        if let name {
+            print("\(aName)被釋放")
+        } else {
+            print("影像模式的實體被釋放")
+        }
+    }
 }
 
 //產生結構和類別的實體
@@ -1126,3 +1134,48 @@ cinema.width = 2048
 print("cinema is now \(cinema.width) pixels wide")
 print("hd is still \(hd.width) pixels wide")
     //原來的1920寬度不會跟著一起更動，為獨立的記憶體配置空間
+
+enum CompassPoint {
+    case north, south, east, west
+    //當方法的實作包含變動"值型別"本身的值時，必須加上mutating關鍵字，如果方法的實作不會變動"值型別"本身的值時，可以不加上mutating關鍵字
+    mutating func turnNorth() {
+        self = .north
+    }
+}
+//取得列舉實體
+var currentDirection = CompassPoint.west
+let rememberedDirection = currentDirection
+    //此行為為複製，會讓原來的currentDirection和新的rememberedDirection形成兩個獨立的記憶體空間配置
+currentDirection.turnNorth()
+
+
+print("The current direction is \(currentDirection)")
+print("The remembered direction is \(rememberedDirection)")
+
+//補充 在實體方法中修改值型別的值Modifying Value Types from Within Instance Methods
+struct Point {
+    var x = 0.0, y = 0.0
+    //實體方法中修改值型別的值，必須加上mutating關鍵字
+    mutating func moveBy(x deltaX: Double, y deltaY: Double) {
+        x += deltaX
+        y += deltaY
+    }
+}
+var somePoint = Point(x: 1.0, y: 1.0)
+somePoint.moveBy(x: 2.0, y: 3.0)
+print("The point is now at (\(somePoint.x), \(somePoint.y))")
+//-------------------------------------------------------------
+
+//----------類別是引用型別～其行為是引用(Classes Are Reference Types)----------
+//與執行別不同，引用型別在設定給變數或常數或傳遞給函式時不會被複製，而是對已經存在的實體進行引用（傳遞時會指向同一塊記憶體配置空間）
+let tenEighty = VideoMode()
+tenEighty.resolution = hd
+tenEighty.interlaced = true
+tenEighty.name = "1080"
+tenEighty.frameRate = 25.0
+
+let alsoTenEighty = tenEighty   //此行為是"引用型別"的引用(會引用到同一塊記憶體配置空間)，此時引用計數為2
+alsoTenEighty.frameRate = 30.0
+print("The frameRate property of tenEighty is now\(tenEighty.frameRate)")
+
+
