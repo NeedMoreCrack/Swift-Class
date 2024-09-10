@@ -1179,3 +1179,62 @@ alsoTenEighty.frameRate = 30.0
 print("The frameRate property of tenEighty is now\(tenEighty.frameRate)")
 
 
+//----------同時性/同步運作(Concurrency)----------
+//asynchronous非同步(可以跟其他程式"同時"運作)
+//synchronous同步;(不能跟其他程式"同時"運作)
+//以下語法為Swift5.7之後增加
+//使用async關鍵字標記"非同步"運行的函式。async關鍵字放置於參數也了列表之後，回傳值之前。
+func fetchUserID(from server: String) async -> Int {
+    //以下為模擬伺服器需要比較耗時的運作
+    if server == "primary" {
+        return 97
+    }
+    return 501
+}
+
+//呼叫非同步函式時，加入await關鍵字。
+func fetchUsername(from server: String) async -> String {
+    //以下模擬伺服器需要比較耗時的運作
+    //常數userID必須await才能拿到非同步函式最後的回傳值(以同步的方式來呼叫非同步函式)
+    let userID = await fetchUserID(from: server)
+    if userID == 501 {
+        //以下為模擬伺服器需要比較耗時的運作
+        return "John Appleseed"
+    }
+    return "Guest"
+}
+
+//使用async let呼叫其他非同步函式，讓他與其他非同步程式碼平行運作。使用非同步函式的回傳值時，請使用await關鍵字
+func connectUser(to server: String) async {
+    //以下為模擬伺服器需要比較耗時的兩種運作，以async let呼叫，以確保兩種運作可以同時執行
+    async let userID = fetchUserID(from: server)
+    async let username = fetchUsername(from: server)
+    //在此行使用await關鍵字等待前面的非同步作業全部完成，才繼續以後的運作
+    let greeting = await "Hello \(username), user ID \(userID)"
+    print(greeting)
+}
+
+//不能在"同步"執行的程式碼區段使用await關鍵字呼叫非同步函式
+//await connectUser(to: "abc")
+//Error:Execution was interrupted
+
+//呼叫Task函式在"同步區段"中，來定義"非同步區段"以呼叫非同步函式，而無須等待他們的回傳。
+Task {  //以下為傳入Task函式的閉包
+    await connectUser(to: "primary")
+}
+
+//使用任務群組(task group)來建立可以同步運作(Concurrent code)的程式碼
+let userIDs = await withTaskGroup(of: Int.self) { group in
+    for server in ["primary", "secondary", "development"] {
+        group.addTask {
+            return await fetchUserID(from: server)
+        }
+    }
+
+
+    var results: [Int] = []
+    for await result in group {
+        results.append(result)
+    }
+    return results
+}
