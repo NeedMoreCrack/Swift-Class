@@ -1126,5 +1126,3 @@ cinema.width = 2048
 print("cinema is now \(cinema.width) pixels wide")
 print("hd is still \(hd.width) pixels wide")
     //原來的1920寬度不會跟著一起更動，為獨立的記憶體配置空間
-
-//
