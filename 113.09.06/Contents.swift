@@ -1101,7 +1101,7 @@ class VideoMode {
     
     deinit {
         if let name {
-            print("\(aName)被釋放")
+            print("\(name)被釋放")
         } else {
             print("影像模式的實體被釋放")
         }
