@@ -1346,7 +1346,7 @@ enum SimpleEnumeration:Int,ExampleProtocol {    //列舉冒號後方可以先帶
             return self.rawValue
         }
         set {
-            myInt.aInt = 100
+            
         }
     }
     //以變動方法實作協定要求
@@ -1512,3 +1512,166 @@ enum PrinterError: Error {
     case noToner    //沒碳粉
     case onFire     //故障
 }
+
+//使用throw來拋出錯誤，並且以throws關鍵字標記函式會拋出錯誤。如果在函式中拋出錯誤，則函式將以立即返回，並且呼叫該函式的程式碼，要處理該錯誤
+func send(job: Int, toPrinter printerName: String) throws -> String {
+    //設定會引發錯誤的特殊狀況
+    if printerName == "Never Has Toner" {
+        //拋出特定的錯誤
+        throw PrinterError.noToner
+    }
+    return "Job sent"
+}
+//函式呼叫沒有產生錯誤時
+try send(job: 1040, toPrinter: "Bi Sheng")
+//呼叫函式時會產生錯誤(注意：最好不要這樣使用！)
+//try send(job: 888, toPrinter: "Never Has Toner")
+
+
+//有很多方法可以處理錯誤。一種方法是使用do-try-catch在do區域內，可以在可能引發錯誤的函式呼叫前方使用try來呼叫函式。在catch區塊內，錯誤會自動指定名稱為error，除非指定不同的名稱
+do {
+    let printerResponse = try send(job: 1040, toPrinter: "Bi Sheng")
+    print(printerResponse)
+} catch {
+    print(error)
+    print(error.localizedDescription)
+}
+
+//可提供多個catch區外但來處理特定錯誤，可以像在switch中case之後一樣，在Catch區段編寫攔截的模式
+do {
+    let printerResponse = try send(job: 1440, toPrinter: "Gutenberg")
+    print(printerResponse)
+} catch PrinterError.onFire {   //捕捉印表機故障的錯誤(沒有error可以使用)
+    print("I'll just put this over here, with the rest of the fire.")
+} catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤(沒有碳粉，缺紙)
+    print("Printer error: \(printerError).")
+} catch {   //捕捉不屬於printerError的其他錯誤
+    print(error)
+}
+
+//【練習16】將印表機名稱變更為"Never Has Toner"，讓該函式send(job:toPrinter:)拋出錯誤。
+do {
+    try send(job: 999, toPrinter: "Never Has Toner")
+}
+catch {
+    print("錯誤：\(error)")
+    print(error.localizedDescription)
+}
+
+do {
+    try send(job: 999, toPrinter: "Never Has Toner")
+}
+catch(let err) {      //自訂錯誤名稱(必須加上let關鍵字)
+    print("錯誤：\(err)")
+    print(err.localizedDescription)
+}
+
+//<方法二>您可以提供多個catch區段來處理"特定錯誤"。您可以像在switch中case之後一樣，在catch區段編寫攔截的模式。
+
+do {
+    let printerResponse = try send(job: 1440, toPrinter: "Gutenberg")
+    print(printerResponse)
+}
+catch PrinterError.onFire {      //捕捉印表機故障的錯誤（沒有error可以使用）
+    print("I'll just put this over here, with the rest of the fire.")
+}
+catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
+    print("Printer error: \(printerError).")
+}
+catch {                           //捕捉不屬於PrinterError的其他錯誤
+    print(error)
+}
+
+//【練習17】在do區塊內讓函式拋出錯誤。您需要拋出什麼樣的錯誤，才能讓第一個catch區塊處理該錯誤？還有讓第二個區塊和第三個區塊捕捉到錯誤呢？
+//讓第一個catch區塊處理該錯誤
+do {
+    let printerResponse = try send(job: 1440, toPrinter: "On Fire")
+    print(printerResponse)
+}
+catch PrinterError.onFire {       //捕捉印表機故障的錯誤（沒有error可以使用）
+    print("I'll just put this over here, with the rest of the fire.")
+}
+catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
+    print("Printer error: \(printerError).")
+}
+catch {                            //捕捉不屬於PrinterError的其他錯誤
+    print(error)
+}
+
+//讓第二個catch區塊處理該錯誤
+do {
+    let printerResponse = try send(job: 1440, toPrinter: "Out Of Paper")
+    print(printerResponse)
+}
+catch PrinterError.onFire {      //捕捉印表機故障的錯誤（沒有error可以使用）
+    print("I'll just put this over here, with the rest of the fire.")
+}
+catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
+    print("Printer error: \(printerError).")
+}
+catch {                         //捕捉不屬於PrinterError的其他錯誤
+    print(error)
+}
+
+//讓第三個catch區塊處理該錯誤
+do {
+    let printerResponse = try send(job: 1440, toPrinter: "")
+    print(printerResponse)
+}
+catch PrinterError.onFire {       //捕捉印表機故障的錯誤（沒有error可以使用）
+    print("I'll just put this over here, with the rest of the fire.")
+}
+catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
+    print("Printer error: \(printerError).")
+}
+catch {                           //捕捉不屬於PrinterError的其他錯誤
+    print(error)
+}
+
+//<方法三>處理錯誤的另一種方法是使用try?將結果轉換為選擇值。如果函式拋出錯誤，則丟棄特定的錯誤，結果為nil。如果函式呼叫成功，則函式的回傳值會是一個選擇值。
+//呼叫成功，取得函式回傳的選擇值
+let printerSuccess = try? send(job: 1884, toPrinter: "Mergenthaler")
+//配合選擇性綁定語法，來制定函式呼叫成功的相關作業
+if let printerSuccess = try? send(job: 1884, toPrinter: "Mergenthaler") {
+    //函式呼叫成功的相關作業
+    print(printerSuccess)
+}
+
+//呼叫失敗，取得函式的回傳值為nil
+let printerFailure = try? send(job: 1885, toPrinter: "Never Has Toner")
+
+if let printerFailure = try? send(job: 1885, toPrinter: "Never Has Toner") {
+    print("呼叫成功")
+}
+else {
+    print("呼叫失敗")
+}
+
+//使用defer區段來編寫在函式中所有其他程式碼執行之後、函式回傳之前才會被執行的程式。無論函式是否拋出錯誤，defer區段的程式碼都會被執行，所以您可以用來defer區段編寫一開始的設定和最後清理的程式碼。
+//冰箱關閉
+var fridgeIsOpen = false
+//冰箱內容物
+let fridgeContent = ["milk", "eggs", "leftovers"]
+
+//函式會比對冰箱內是否有相同的食物
+func fridgeContains(_ food: String) -> Bool {
+    //一開始先打開冰箱
+    fridgeIsOpen = true
+    //最後必須關上冰箱（此defer區段在回傳前的最後一刻才會執行，包含拋出錯誤）
+    defer {
+        fridgeIsOpen = false
+    }
+    //確認冰箱內容物陣列是否包含特定食物
+    let result = fridgeContent.contains(food)
+    //回傳是否有特定食物
+    return result
+}
+
+if fridgeContains("banana") {
+    print("Found a banana")
+}
+else {
+    print("冰箱沒有香蕉")
+}
+//冰箱已經關上
+print(fridgeIsOpen)
