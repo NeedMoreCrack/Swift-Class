@@ -1259,25 +1259,41 @@ actor ServerConnection {
 let server = ServerConnection()
 let userID = await server.connect()
 
-//----------設定和礦展(Protocols and Extensions)----------
-//使用protocol關鍵字宣告協定，來定義協定的要求(requirement)，不包含實作
-protocol ExampleProtocol {  //協定為為一份工作清單
-     //協定要求：實作一個名為simpleDescription的屬性，其型別為String，"至少"是唯讀的屬性
-     var simpleDescription: String { get }
-     //協定要求：實作一個名為adjust的方法，沒有參數列表，沒有回傳值，以mutating關鍵字標示此方法的實作中，可以變動"值型別"的屬性
-     mutating func adjust()
+//================協定和擴展（Protocols and Extensions）================
+//使用protocol關鍵字宣告協定，來定義協定的要求（requirement），不包含實作
+protocol ExampleProtocol {   //協定為一份工作清單
+
+    //協定要求：實作一個名為simpleDescription的屬性，其型別為String，"至少"是唯讀的屬性
+    var simpleDescription: String { get }
+    //【練習14】新增另一個ExampleProtocol協定的要求："至少"是可讀可寫的屬性
+    var aInt:Int { get set }
+    //協定要求：實作一個名為adjust的方法，沒有參數列表，沒有回傳值，以mutating關鍵字標示此方法的實作中，可以變動"值型別"的屬性值
+    mutating func adjust()
+    
 }
 
-//----------類別 列獄警和結構都可以採納協定----------
-//類別採納協定(adopt protocols)
-class SimpleClass: ExampleProtocol {
-     //當沒有協定要求時(少作任一要求時)，會有類似如下的錯誤訊息：
+//----------類別、列舉和結構都可以採納協定----------
+//類別採納協定（adopt protocols）
+class SimpleClass: NamedShape,ExampleProtocol {  //類別冒號後方可以先繼承，再引入多份工作清單，以逗號區隔
+
+     //當沒有符合協定要求時(少做任一要求時)，會有類似如下的錯誤訊息：
      //Type 'SimpleClass' does not conform to protocol 'ExampleProtocol'
      var simpleDescription: String = "A very simple class."
+     //【練習14】
+     private var tempInt = 0
+     var aInt:Int {
+         get {
+             return tempInt
+         }
+         set {
+             tempInt = newValue
+         }
+     }
+     //此屬性與協定無關
      var anotherProperty: Int = 69105
      //類別實作方法時，不需使用mutating關鍵字
      func adjust() {
-          simpleDescription += "  Now 100% adjusted."
+        simpleDescription += "  Now 100% adjusted."
      }
 }
 //實體化類別
@@ -1289,6 +1305,8 @@ let aDescription = a.simpleDescription
 struct SimpleStructure: ExampleProtocol {
      //以"結構成員"來實作協定要求
      var simpleDescription: String = "A simple structure"
+     //【練習14】
+     var aInt = 0
      //以變動方法來實作協定要求
      mutating func adjust() {
           simpleDescription += " (adjusted)"
@@ -1299,49 +1317,135 @@ var b = SimpleStructure()
 b.adjust()
 let bDescription = b.simpleDescription
 
-//----------補充 選擇性的協定要求(Optional Protocol Requirements)----------
-//選擇性的協定要求必須在Protocol關鍵字前方加上 @objc關鍵字
+//【練習14】新增另一個ExampleProtocol協定的要求。您需要進行哪些更動才能讓SimpleClass、SimpleStructure仍然符合協定？
+
+enum SimpleEnumeration:Int,ExampleProtocol {    //列舉冒號後方可以先帶原始值，再引入多份工作清單，以逗號區隔
+
+    case one=1,two,three
+    case oneAdjusted,twoAdjusted,threeAdjusted
+    //以唯讀計算屬性實作協定要求
+    var simpleDescription: String {
+        switch self {
+            case .one:
+                return "【一】"
+            case .two:
+                return "【二】"
+            case .three:
+                return "【三】"
+            case .oneAdjusted:
+                return "【一】+"
+            case .twoAdjusted:
+                return "【二】+"
+            case .threeAdjusted:
+                return "【三】+"
+        }
+    }
+    //以可讀可寫計算屬性實作協定要求
+    var aInt: Int {
+        get {
+            return self.rawValue
+        }
+        set {
+            //空實作
+        }
+    }
+    //以變動方法實作協定要求
+    mutating func adjust() {
+        switch self {
+            case .one:
+                self = .oneAdjusted
+            case .two:
+                self = .twoAdjusted
+            case .three:
+                self = .threeAdjusted
+            default:
+                break
+        }
+    }
+}
+//實體化列舉
+var c = SimpleEnumeration.three
+c.simpleDescription
+c.adjust()
+let cDescription = c.simpleDescription
+
+c = SimpleEnumeration.twoAdjusted
+c.simpleDescription
+c.adjust()
+c.simpleDescription
+
+//-----------<補充>選擇性的協定要求（Optional Protocol Requirements）-----------
+//選擇性的協定要求必須在protocol關鍵字前方加上@objc關鍵字
 @objc protocol CounterDataSource {
     //選擇性實作的屬性或方法前方需加上 @objc optional
     @objc optional func increment(forCount count: Int) -> Int
     @objc optional var fixedIncrement: Int { get }
-    var aInt:Int{get set}   //必須實作的屬性(開發文件描述為required)
+    var aInt:Int {get set}      //必須實作的屬性 （開發文件描述為required）
 }
 
-//----------以協定當作型別(Protocols as Types)----------
-//定義計數類別(通常為Framework的現成類別)
+//**********以協定當作型別（Protocols as Types）**********
+//定義計數類別（通常為Framework的現成類別）
 class Counter {
     //記錄累計數量
     var count = 0
-    //有實作過CounterDataSource協定的"類別實體"or"結構實體"or"列舉實體"才能儲存在此屬性
-    var dataSource: CounterDataSource?  //此為協定型別，只能看到協定相關的屬性和方法
-    //累積數量的增值方法(啟動CounterDataSource協定的increment?(forCount: count)方法orfixedIncrement屬性)
+    //有實作過CounterDataSource協定的"類別實體"或"結構實體"或"列舉實體"才能儲存在此屬性
+    var dataSource: CounterDataSource?      //此為協定型別，只能看到協定相關的屬性和方法
+    //var delegate:xxDelegate?
+    //累計數量的增值方法(啟動CounterDataSource協定的increment?(forCount: count)方法或fixedIncrement屬性)
     func increment() {
         //如果有實作過協定的增值方法，從此方法取得當次的累計數量
         if let amount = dataSource?.increment?(forCount: count) {
             count += amount
-        //或者如果有時做過協定的增值屬性，從此屬性取得當次的累計數量
-        } else if let amount = dataSource?.fixedIncrement {
+        }
+        //或者如果有實作過協定的增值屬性，從此屬性取得當次的累計數量
+        else if let amount = dataSource?.fixedIncrement {
             count += amount
         }
     }
 }
 
-//----------代理機制(Delegation)----------
-//以ThreeSource類別實作CounterDataSource協定
+//------------------------代理機制（Delegation）------------------------
+//以ThreeSource類別實作CounterDataSource協定（通常是自己的實作）
 class ThreeSource: NSObject, CounterDataSource {    //繼承自NSObject在Swift類別中可以省略
     //實作必要協定
     var aInt = 0
     //實作選擇性協定
     let fixedIncrement = 3
+    //此屬性與協定無關
+    var noneProtocolProperty = "test"
 }
-
 //初始化計數類別
 var counter = Counter()
-//為計數類別實體提供實作過CounterDataSource(ThreeSource類別實體)
-counter.dataSource = ThreeSource()
+//為計數類別實體提供實作過CounterDataSource的類別實體（ThreeSource類別實體）
+let threeSource = ThreeSource()
+threeSource.noneProtocolProperty                //此類別實體的視角可以看到ThreeSource類別中所有的屬性和方法
+counter.dataSource = threeSource
+//counter.dataSource.noneProtocolProperty       //此協定型別的視角無法看到ThreeSource類別中不屬於協定的屬性或方法
 for _ in 1...4 {
     //執行計數類別的增值方法
     counter.increment()
     print(counter.count)
 }
+
+//注意：因為協定變數為實作過ExampleProtocol的類別實體，但此時為引用型別
+var protocolValue: any ExampleProtocol = a  //any關鍵字為SwiftUI使用，可以去除不影響結果 (原範例為let)
+//以下呼叫與協定相關的屬性方法
+print(protocolValue.simpleDescription)
+protocolValue.adjust()
+protocolValue.aInt
+//以a的視角可以看到全部的屬性方法，但以protocolValue的視角只能看到協定相關的屬性方法
+a.anotherProperty
+//protocolValue.anotherProperty
+
+//協定型別可以使用as關鍵字來轉換回原類別實體的視角（此語法即為型別轉換）
+(protocolValue as! SimpleClass).aInt
+
+//此協定變數也可以以實作過ExampleProtocol的結構實體儲存，但此時為值型別
+protocolValue = b
+b.simpleDescription
+(protocolValue as! SimpleStructure).aInt
+
+//此協定變數也可以以實作過ExampleProtocol的列舉實體儲存，但此時為值型別
+protocolValue = c
+c.simpleDescription
+(protocolValue as! SimpleStructure).simpleDescription
