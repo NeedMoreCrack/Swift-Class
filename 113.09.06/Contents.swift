@@ -1223,7 +1223,9 @@ Task {  //以下為傳入Task函式的閉包
     await connectUser(to: "primary")
 }
 
+//以下語法為Swift新增功能
 //使用任務群組(task group)來建立可以同步運作(Concurrent code)的程式碼
+//使用withTaskGroup來區分可以執行多任務的區段
 let userIDs = await withTaskGroup(of: Int.self) { group in
     for server in ["primary", "secondary", "development"] {
         group.addTask {
@@ -1238,3 +1240,61 @@ let userIDs = await withTaskGroup(of: Int.self) { group in
     }
     return results
 }
+
+//Actor與類別類似，只不過他們確保不同的非同步函式可以同時安全與同一個Actor的實體進行交互作用
+actor ServerConnection {
+    var server: String = "primary"
+    private var activeUsers: [Int] = []
+    func connect() async -> Int {
+        let userID = await fetchUserID(from: server)
+        // ... communicate with server ...
+        activeUsers.append(userID)
+        return userID
+    }
+}
+
+//呼叫Actor的實體方法或存取其實體屬性時，可以將該程式碼以await關鍵字標記，只是他可以必須等待Actor上已運行的其他程式碼
+
+//產生ServerConnection這個actor的實體
+let server = ServerConnection()
+let userID = await server.connect()
+
+//----------設定和礦展(Protocols and Extensions)----------
+//使用protocol關鍵字宣告協定，來定義協定的要求(requirement)，不包含實作
+protocol ExampleProtocol {  //協定為為一份工作清單
+     //協定要求：實作一個名為simpleDescription的屬性，其型別為String，"至少"是唯讀的屬性
+     var simpleDescription: String { get }
+     //協定要求：實作一個名為adjust的方法，沒有參數列表，沒有回傳值，以mutating關鍵字標示此方法的實作中，可以變動"值型別"的屬性
+     mutating func adjust()
+}
+
+//----------類別 列獄警和結構都可以採納協定----------
+//類別採納協定(adopt protocols)
+class SimpleClass: ExampleProtocol {
+     //當沒有協定要求時(少作任一要求時)，會有類似如下的錯誤訊息：
+     //Type 'SimpleClass' does not conform to protocol 'ExampleProtocol'
+     var simpleDescription: String = "A very simple class."
+     var anotherProperty: Int = 69105
+     //類別實作方法時，不需使用mutating關鍵字
+     func adjust() {
+          simpleDescription += "  Now 100% adjusted."
+     }
+}
+//實體化類別
+var a = SimpleClass()
+a.adjust()
+let aDescription = a.simpleDescription
+
+//結構採納協定
+struct SimpleStructure: ExampleProtocol {
+     //以"結構成員"來實作協定要求
+     var simpleDescription: String = "A simple structure"
+     //以變動方法來實作協定要求
+     mutating func adjust() {
+          simpleDescription += " (adjusted)"
+     }
+}
+//實體化結構
+var b = SimpleStructure()
+b.adjust()
+let bDescription = b.simpleDescription
