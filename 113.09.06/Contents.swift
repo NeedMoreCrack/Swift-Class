@@ -1298,3 +1298,27 @@ struct SimpleStructure: ExampleProtocol {
 var b = SimpleStructure()
 b.adjust()
 let bDescription = b.simpleDescription
+
+//----------補充 選擇性的協定要求(Optional Protocol Requirements)----------
+//選擇性的協定要求必須在Protocol關鍵字前方加上 @objc關鍵字
+@objc protocol CounterDataSource {
+    //選擇性實作的屬性或方法前方需加上 @objc optional
+    @objc optional func increment(forCount count: Int) -> Int
+    @objc optional var fixedIncrement: Int { get }
+    var aInt:Int{get set}   //必須實作的屬性(開發文件描述為required)
+}
+
+//----------以協定當作型別(Protocols as Types)----------
+class Counter {
+    //記錄累計數量
+    var count = 0
+    //有實作過CounterDataSource協定的"類別實體"or"結構實體"or"列舉實體"才能儲存在此屬性
+    var dataSource: CounterDataSource?
+    func increment() {
+        if let amount = dataSource?.increment?(forCount: count) {
+            count += amount
+        } else if let amount = dataSource?.fixedIncrement {
+            count += amount
+        }
+    }
+}
