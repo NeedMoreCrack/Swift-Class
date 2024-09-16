@@ -1309,16 +1309,39 @@ let bDescription = b.simpleDescription
 }
 
 //----------以協定當作型別(Protocols as Types)----------
+//定義計數類別(通常為Framework的現成類別)
 class Counter {
     //記錄累計數量
     var count = 0
     //有實作過CounterDataSource協定的"類別實體"or"結構實體"or"列舉實體"才能儲存在此屬性
-    var dataSource: CounterDataSource?
+    var dataSource: CounterDataSource?  //此為協定型別，只能看到協定相關的屬性和方法
+    //累積數量的增值方法(啟動CounterDataSource協定的increment?(forCount: count)方法orfixedIncrement屬性)
     func increment() {
+        //如果有實作過協定的增值方法，從此方法取得當次的累計數量
         if let amount = dataSource?.increment?(forCount: count) {
             count += amount
+        //或者如果有時做過協定的增值屬性，從此屬性取得當次的累計數量
         } else if let amount = dataSource?.fixedIncrement {
             count += amount
         }
     }
+}
+
+//----------代理機制(Delegation)----------
+//以ThreeSource類別實作CounterDataSource協定
+class ThreeSource: NSObject, CounterDataSource {    //繼承自NSObject在Swift類別中可以省略
+    //實作必要協定
+    var aInt = 0
+    //實作選擇性協定
+    let fixedIncrement = 3
+}
+
+//初始化計數類別
+var counter = Counter()
+//為計數類別實體提供實作過CounterDataSource(ThreeSource類別實體)
+counter.dataSource = ThreeSource()
+for _ in 1...4 {
+    //執行計數類別的增值方法
+    counter.increment()
+    print(counter.count)
 }
