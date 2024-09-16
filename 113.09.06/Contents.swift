@@ -1317,7 +1317,7 @@ var b = SimpleStructure()
 b.adjust()
 let bDescription = b.simpleDescription
 
-//【練習14】新增另一個ExampleProtocol協定的要求。您需要進行哪些更動才能讓SimpleClass、SimpleStructure仍然符合協定？
+//【練習14】新增另一個ExampleProtocol協定的要求。您需要進行哪些更動才能讓SimpleClass、SimpleStructure仍然符合協定？
 
 enum SimpleEnumeration:Int,ExampleProtocol {    //列舉冒號後方可以先帶原始值，再引入多份工作清單，以逗號區隔
 
@@ -1346,7 +1346,7 @@ enum SimpleEnumeration:Int,ExampleProtocol {    //列舉冒號後方可以先帶
             return self.rawValue
         }
         set {
-            //空實作
+            myInt.aInt = 100
         }
     }
     //以變動方法實作協定要求
@@ -1428,7 +1428,7 @@ for _ in 1...4 {
 }
 
 //注意：因為協定變數為實作過ExampleProtocol的類別實體，但此時為引用型別
-var protocolValue: any ExampleProtocol = a  //any關鍵字為SwiftUI使用，可以去除不影響結果 (原範例為let)
+var protocolValue: ExampleProtocol = a  //any關鍵字為SwiftUI使用，可以去除不影響結果 (原範例為let)
 //以下呼叫與協定相關的屬性方法
 print(protocolValue.simpleDescription)
 protocolValue.adjust()
@@ -1438,14 +1438,77 @@ a.anotherProperty
 //protocolValue.anotherProperty
 
 //協定型別可以使用as關鍵字來轉換回原類別實體的視角（此語法即為型別轉換）
-(protocolValue as! SimpleClass).aInt
+if let simpleClass = protocolValue as? SimpleClass {
+    print(simpleClass.aInt)
+}
 
 //此協定變數也可以以實作過ExampleProtocol的結構實體儲存，但此時為值型別
 protocolValue = b
 b.simpleDescription
-(protocolValue as! SimpleStructure).aInt
+if let simpleStruct = protocolValue as? SimpleStructure {
+    print(simpleStruct.aInt)
+}
 
 //此協定變數也可以以實作過ExampleProtocol的列舉實體儲存，但此時為值型別
 protocolValue = c
 c.simpleDescription
-(protocolValue as! SimpleStructure).simpleDescription
+if let simpleEnum = protocolValue as? SimpleEnumeration {
+    print(simpleEnum.simpleDescription)
+}
+
+//使用extension為既存型別新增功能，例如新方法和"計算屬性"。可以在其他地方宣告的型別，甚至從函式庫或框架匯入的型別，使用擴展來符合協定
+extension Int: ExampleProtocol {
+    var aInt: Int {
+        get {
+            return 1
+        }
+        set {
+            
+        }
+    }
+    var simpleDescription: String {
+        return "The number \(self)"
+    }
+    mutating func adjust() {
+        self += 42
+    }
+ }
+//注意：實際數字只能操作simpleDescription，其餘兩個協定屬性和方法使用時，會有程度不等的問題
+print("1477\(7.simpleDescription)")
+
+//宣告整數變數後，所有屬性方法都可正常使用
+var myInt = 7
+myInt.aInt
+myInt.adjust()
+print(myInt.simpleDescription)
+
+//練習 使用擴展為Double型別新增absoluteValue屬性
+extension Double {
+    var absoluteValue: Double {
+        if self < 0 {
+            return -self
+        } else {
+            return self
+        }
+    }
+}
+var aDouble2 = -3.99
+aDouble2.absoluteValue
+
+//整數取絕對值可以使用magnitude屬性
+let x = -200
+x.magnitude == 200
+x.magnitude
+
+//浮點數取絕對值可以使用magnitude屬性
+let y = -200.0
+y.magnitude == 200
+y.magnitude
+
+//----------錯誤處理(Error Handling)----------
+//可以使用 任何型別來採納Error協定以表示錯誤(建議最好使用列舉來列出錯誤)
+enum PrinterError: Error {
+    case outOfPaper //缺紙
+    case noToner    //沒碳粉
+    case onFire     //故障
+}
