@@ -1755,7 +1755,6 @@ let newNumbers = numbers.map {
 }
 
 //您可以在函式和方法以及類別、列舉和結構中使用泛用型別。
-
 // Reimplement the Swift standard library's optional type
 //以列舉的關聯值重新實作Swift標準函式庫的選擇性型別
 //<方法一>在型別和方法中使用兩種泛型：泛型在型別的定義和方法的定義中分別定義
@@ -1798,11 +1797,10 @@ enum OptionalValue2<Wrapped,Item> {
 var possibleInteger3:OptionalValue2<String,Int> = .some("test")
 
 //在函式的實作之前使用where來指定要求清單 - 例如，要求型別實作協定、要求兩個型別相同或要求一個類別繼承自特定的父類別。
-                      //要求T型別和U實作Sequence協定
+//要求T型別和U實作Sequence協定
 func anyCommonElements<T: Sequence, U: Sequence>(_ lhs: T, _ rhs: U) -> Bool
 where T.Element: Equatable, T.Element == U.Element {
     //要求1.T集合中的元素，必須實作Equatable協定 2.要求T集合中的元素必須和U集合中的元素型別
-
     //外迴圈：跑參數1的集合
     for lhsItem in lhs {
         //內迴圈：跑參數2的集合
@@ -1878,7 +1876,8 @@ anyCommonElements2([1, 2, 3], [3,1,5])
 //以上函式進行改版，只使用一種泛型
 func anyCommonElements3<T: Sequence>(_ lhs: T, _ rhs: T) -> [T.Element]
     where T.Element: Equatable {
-    //要求1.T集合中的元素，必須實作Equatable協定 2.要求T集合中的元素必須和U集合中的元素型別
+    //要求1.T集合中的元素，必須實作Equatable協定
+    //2.要求T集合中的元素必須和U集合中的元素型別
 
         //先準備存放共同元素的陣列
         var commons = [T.Element]()
@@ -1929,7 +1928,6 @@ struct Point3D:Comparable,Hashable {   //Comparable協定包含"相等協定"，
             return false
         }
     }
-    
 }
 
 let point1 = Point3D(x: 3, y: 4, z: 5)
