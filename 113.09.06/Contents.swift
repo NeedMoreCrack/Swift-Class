@@ -1505,30 +1505,43 @@ let y = -200.0
 y.magnitude == 200
 y.magnitude
 
-//----------錯誤處理(Error Handling)----------
-//可以使用 任何型別來採納Error協定以表示錯誤(建議最好使用列舉來列出錯誤)
+//=============錯誤處理（Error Handling）=============
+//您可以使用"任何型別"來採納Error協定以表示錯誤。（建議最好使用列舉來列出錯誤）
+//以列舉來採納Error協定，以定義印表機的錯誤
 enum PrinterError: Error {
-    case outOfPaper //缺紙
-    case noToner    //沒碳粉
-    case onFire     //故障
+    case outOfPaper     //缺紙
+    case noToner        //沒有碳粉
+    case onFire         //故障
+}
+//【練習17】定義其他錯誤
+enum OtherError: Error {
+    case unknown
 }
 
-//使用throw來拋出錯誤，並且以throws關鍵字標記函式會拋出錯誤。如果在函式中拋出錯誤，則函式將以立即返回，並且呼叫該函式的程式碼，要處理該錯誤
+//使用throw來拋出錯誤，並且以throws關鍵字標記函式會拋出錯誤。如果在函式中拋出錯誤，則函式將立即返回，並且呼叫該函式的程式碼，要處理該錯誤。
+
 func send(job: Int, toPrinter printerName: String) throws -> String {
     //設定會引發錯誤的特殊狀況
     if printerName == "Never Has Toner" {
-        //拋出特定的錯誤
-        throw PrinterError.noToner
+        throw PrinterError.noToner //拋出特定的錯誤
+    } else if printerName == "Out Of Paper" { //【練習17】讓函式可以拋出PrinterError另外兩種錯誤
+        throw PrinterError.outOfPaper
+    } else if printerName == "On Fire" { //【練習17】讓函式可以拋出PrinterError另外兩種錯誤
+        throw PrinterError.onFire
+    } else if printerName == "" { //【練習17】讓函式可以拋出OtherError
+        throw OtherError.unknown
     }
     return "Job sent"
 }
-//函式呼叫沒有產生錯誤時
+
+//函式呼叫沒有產生錯誤時（最好不要直接這樣使用，最好使用do-try-catch捕捉錯誤）
 try send(job: 1040, toPrinter: "Bi Sheng")
-//呼叫函式時會產生錯誤(注意：最好不要這樣使用！)
+//函式呼叫時會產生錯誤（注意：此行會產生執行階段錯誤，但Playground不會報錯！）
 //try send(job: 888, toPrinter: "Never Has Toner")
 
+//有多種方法可以處理錯誤。
+//<方法一>一種方法是使用do-try- catch。在do區塊內，您可以在可能引發錯誤的函式呼叫前方使用try來呼叫函式。在catch區塊內，錯誤會自動指定名稱為error，除非您指定不同的名稱。
 
-//有很多方法可以處理錯誤。一種方法是使用do-try-catch在do區域內，可以在可能引發錯誤的函式呼叫前方使用try來呼叫函式。在catch區塊內，錯誤會自動指定名稱為error，除非指定不同的名稱
 do {
     let printerResponse = try send(job: 1040, toPrinter: "Bi Sheng")
     print(printerResponse)
@@ -1537,31 +1550,17 @@ do {
     print(error.localizedDescription)
 }
 
-//可提供多個catch區外但來處理特定錯誤，可以像在switch中case之後一樣，在Catch區段編寫攔截的模式
-do {
-    let printerResponse = try send(job: 1440, toPrinter: "Gutenberg")
-    print(printerResponse)
-} catch PrinterError.onFire {   //捕捉印表機故障的錯誤(沒有error可以使用)
-    print("I'll just put this over here, with the rest of the fire.")
-} catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤(沒有碳粉，缺紙)
-    print("Printer error: \(printerError).")
-} catch {   //捕捉不屬於printerError的其他錯誤
-    print(error)
-}
-
 //【練習16】將印表機名稱變更為"Never Has Toner"，讓該函式send(job:toPrinter:)拋出錯誤。
 do {
     try send(job: 999, toPrinter: "Never Has Toner")
-}
-catch {
+} catch {
     print("錯誤：\(error)")
     print(error.localizedDescription)
 }
 
 do {
     try send(job: 999, toPrinter: "Never Has Toner")
-}
-catch(let err) {      //自訂錯誤名稱(必須加上let關鍵字)
+} catch(let err) {     //自訂錯誤名稱(必須加上let關鍵字)
     print("錯誤：\(err)")
     print(err.localizedDescription)
 }
@@ -1571,14 +1570,11 @@ catch(let err) {      //自訂錯誤名稱(必須加上let關鍵字)
 do {
     let printerResponse = try send(job: 1440, toPrinter: "Gutenberg")
     print(printerResponse)
-}
-catch PrinterError.onFire {      //捕捉印表機故障的錯誤（沒有error可以使用）
+} catch PrinterError.onFire {      //捕捉印表機故障的錯誤（沒有error可以使用）
     print("I'll just put this over here, with the rest of the fire.")
-}
-catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
+} catch let printerError as PrinterError { //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
     print("Printer error: \(printerError).")
-}
-catch {                           //捕捉不屬於PrinterError的其他錯誤
+} catch {                          //捕捉不屬於PrinterError的其他錯誤
     print(error)
 }
 
@@ -1587,14 +1583,11 @@ catch {                           //捕捉不屬於PrinterError的其他錯誤
 do {
     let printerResponse = try send(job: 1440, toPrinter: "On Fire")
     print(printerResponse)
-}
-catch PrinterError.onFire {       //捕捉印表機故障的錯誤（沒有error可以使用）
+} catch PrinterError.onFire {      //捕捉印表機故障的錯誤（沒有error可以使用）
     print("I'll just put this over here, with the rest of the fire.")
-}
-catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
+} catch let printerError as PrinterError { //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
     print("Printer error: \(printerError).")
-}
-catch {                            //捕捉不屬於PrinterError的其他錯誤
+} catch {                          //捕捉不屬於PrinterError的其他錯誤
     print(error)
 }
 
@@ -1602,14 +1595,11 @@ catch {                            //捕捉不屬於PrinterError的其他錯誤
 do {
     let printerResponse = try send(job: 1440, toPrinter: "Out Of Paper")
     print(printerResponse)
-}
-catch PrinterError.onFire {      //捕捉印表機故障的錯誤（沒有error可以使用）
+} catch PrinterError.onFire {      //捕捉印表機故障的錯誤（沒有error可以使用）
     print("I'll just put this over here, with the rest of the fire.")
-}
-catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
+} catch let printerError as PrinterError { //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
     print("Printer error: \(printerError).")
-}
-catch {                         //捕捉不屬於PrinterError的其他錯誤
+} catch {                          //捕捉不屬於PrinterError的其他錯誤
     print(error)
 }
 
@@ -1617,14 +1607,11 @@ catch {                         //捕捉不屬於PrinterError的其他錯誤
 do {
     let printerResponse = try send(job: 1440, toPrinter: "")
     print(printerResponse)
-}
-catch PrinterError.onFire {       //捕捉印表機故障的錯誤（沒有error可以使用）
+} catch PrinterError.onFire {      //捕捉印表機故障的錯誤（沒有error可以使用）
     print("I'll just put this over here, with the rest of the fire.")
-}
-catch let printerError as PrinterError {  //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
+} catch let printerError as PrinterError { //捕捉印表機的另外兩種錯誤（沒有碳粉、缺紙）
     print("Printer error: \(printerError).")
-}
-catch {                           //捕捉不屬於PrinterError的其他錯誤
+} catch {                           //捕捉不屬於PrinterError的其他錯誤
     print(error)
 }
 
@@ -1642,8 +1629,7 @@ let printerFailure = try? send(job: 1885, toPrinter: "Never Has Toner")
 
 if let printerFailure = try? send(job: 1885, toPrinter: "Never Has Toner") {
     print("呼叫成功")
-}
-else {
+} else {
     print("呼叫失敗")
 }
 
@@ -1669,9 +1655,312 @@ func fridgeContains(_ food: String) -> Bool {
 
 if fridgeContains("banana") {
     print("Found a banana")
-}
-else {
+} else {
     print("冰箱沒有香蕉")
 }
 //冰箱已經關上
 print(fridgeIsOpen)
+
+numbers.sort()
+
+numbers.sort {
+    //傳入不會拋出錯誤的閉包，所以不需要捕捉錯誤
+    num1, num2
+    in
+    return num1 > num2
+}
+
+//----------回拋錯誤的函式和方法（Rethrowing Functions and Methods）----------
+//可以使用rethrows關鍵字宣告函式或方法，以指示當其函式參數為閉包時會拋出錯誤，該函式或方法才會拋出錯誤。這些函式和方法稱為回拋錯誤的函式和方法。回拋錯誤的函式和方法必須至少有一個會拋出錯誤的函式作為其參數。
+//******回拋函式不處理錯誤******
+func someFunction(callback: () throws -> Void) rethrows {
+    //此方法可以對比上方的sort方法，但sort方法無法看到實作，實作邏輯類似以下實作
+    try callback()  //注意：此處使用try不處理錯誤，而非<方法三>的try?
+}
+
+//呼叫函式傳入"不會"拋出錯誤的閉包
+someFunction {
+    print("test")
+}
+//呼叫函式傳入"會"拋出錯誤的閉包，呼叫此回拋函式時，需處理錯誤
+try? someFunction {
+    throw OtherError.unknown
+}
+
+
+//******函式接受會拋出錯誤的閉包並處理錯誤******（注意：此處原範例有問題，有問題的部分已註解）
+//func alwaysThrows() throws
+//{
+//    throw SomeError.error
+//}
+func someFunction2(callback: () throws -> Void) { //rethrows
+    do {
+        try callback()
+//        try alwaysThrows()  // Invalid, alwaysThrows() isn't a throwing parameter
+    } catch {
+//        throw AnotherError.error
+        print(error)
+    }
+}
+
+//呼叫函式傳入"不會"拋出錯誤的閉包
+someFunction2 {
+    print("test")
+}
+//呼叫函式傳入"會"拋出錯誤的閉包，呼叫此函式時，不需處理錯誤（因為錯誤處理程序已經在someFunction2函式中執行）
+someFunction2 {
+    throw OtherError.unknown
+}
+
+//================泛用型別/泛型（Generics）================
+//先定義"非泛型"函式
+func makeArray(repeating item: Int, numberOfTimes: Int) -> [Int] {
+    var result = [Int]()
+    for _ in 0..<numberOfTimes { //[0,1,2,3,4]
+         result.append(item)
+    }
+    return result
+}
+//呼叫"非泛型"函式
+makeArray(repeating: 99, numberOfTimes: 5)
+
+//先定義"非泛型"函式
+func makeArray(repeating item: String, numberOfTimes: Int) -> [String] {
+    var result = [String]()
+    for _ in 0..<numberOfTimes { //[0,1,2,3,4]
+         result.append(item)
+    }
+    return result
+}
+//呼叫"非泛型"函式
+makeArray(repeating: "test", numberOfTimes: 5)
+
+
+//在尖括號（<>）內寫入泛型名稱以建立泛型函式
+func makeArray<Item>(repeating item: Item, numberOfTimes: Int) -> [Item] {
+    var result = [Item]()
+    for _ in 0..<numberOfTimes {
+         result.append(item)
+    }
+    return result
+}
+
+makeArray(repeating: "knock", numberOfTimes: 4)
+makeArray(repeating: 4.99, numberOfTimes: 5)
+
+//陣列元素的對應處理方法即是泛型函式
+let newNumbers = numbers.map {
+    num in
+    return "\(num)"
+}
+
+//您可以在函式和方法以及類別、列舉和結構中使用泛用型別。
+
+// Reimplement the Swift standard library's optional type
+//以列舉的關聯值重新實作Swift標準函式庫的選擇性型別
+//<方法一>在型別和方法中使用兩種泛型：泛型在型別的定義和方法的定義中分別定義
+enum OptionalValue<Wrapped> {
+    case none
+    case some(Wrapped)
+    //定義泛用型別的方法
+    func makeArray<Item>(repeating item: Item, numberOfTimes: Int) -> [Item] {
+        var result = [Item]()
+        for _ in 0..<numberOfTimes {
+             result.append(item)
+        }
+        return result
+    }
+}
+//取得列舉實體（明確型別，因為第一個case沒有關聯值，無法自動決定關聯值Wrapped的型別）
+var possibleInteger: OptionalValue<Int> = .none
+possibleInteger = .some(100)
+
+//取得列舉實體（型別推測，因為第二個case有關聯值，可以自動決定關聯值Wrapped的型別）
+var possibleInteger2 = OptionalValue.some(99)
+possibleInteger = .none
+
+possibleInteger.makeArray(repeating: 3.99, numberOfTimes: 5)
+
+//<方法二>在型別和方法中使用兩種泛型：泛型在型別的定義中一起定義
+enum OptionalValue2<Wrapped,Item> {
+    case none
+    case some(Wrapped)
+    //定義泛用型別的方法
+    func makeArray(repeating item: Item, numberOfTimes: Int) -> [Item] {
+        var result = [Item]()
+        for _ in 0..<numberOfTimes {
+             result.append(item)
+        }
+        return result
+    }
+}
+//如果同時使用兩種泛型在型別和實體方法中，且泛型在型別的定義中一起定義，則宣告實體時必須明確型別
+var possibleInteger3:OptionalValue2<String,Int> = .some("test")
+
+//在函式的實作之前使用where來指定要求清單 - 例如，要求型別實作協定、要求兩個型別相同或要求一個類別繼承自特定的父類別。
+                      //要求T型別和U實作Sequence協定
+func anyCommonElements<T: Sequence, U: Sequence>(_ lhs: T, _ rhs: U) -> Bool
+where T.Element: Equatable, T.Element == U.Element {
+    //要求1.T集合中的元素，必須實作Equatable協定 2.要求T集合中的元素必須和U集合中的元素型別
+
+    //外迴圈：跑參數1的集合
+    for lhsItem in lhs {
+        //內迴圈：跑參數2的集合
+        for rhsItem in rhs {
+            //核對參數1的集合元素是否與參數2的集合元素相同
+            if lhsItem == rhsItem {
+                return true
+            }
+        }
+    }
+   return false
+}
+
+//呼叫函式
+anyCommonElements([1, 2, 3], [3])
+
+//比較兩個集合(set)是否有相同元素
+var set1:Set<String> = ["Rock", "Classical", "Hip hop"]
+var set2:Set<String> = ["HH","rock"]
+
+anyCommonElements(set1, set2)
+
+//------<補充>集合型別的雜湊值（hash value）----------
+/*
+ㄧ個型別必須是可以雜湊的（hashable）的才能儲存在集合中～ 也就是說，該型別必須提供一種計算自身雜湊值的方法（雜湊值的演算法）。雜湊值是一個Int的值，當執行相等比較時，譬如：a == b，其實是比較a的雜湊值，相等於b的雜湊值。
+
+Swift 的所有基本型別（例如String、Int、Double和Bool）預設都是可以雜湊的，並且可以用來當作集合（set）的值型別或字典Key型別。
+預設情況下，沒有關聯值的列舉case的值也是可以雜湊的。
+*/
+let num1 = 34
+let num2 = 28
+//所有基本型別（例如String、Int、Double和Bool）預設都是可以雜湊的，都有hashValue屬性
+num1.hashValue
+num2.hashValue
+
+//a == b，其實是比較a的雜湊值，相等於b的雜湊值
+if num1 == num2 {
+    print("num1與num2相等")
+} else {
+    print("num1與num2不相等")
+}
+//a == b，其實是比較a的雜湊值，相等於b的雜湊值
+if num1.hashValue == num2.hashValue {
+    print("num1與num2相等")
+} else {
+    print("num1與num2不相等")
+}
+
+//Modify the anyCommonElements(_:_:) function to make a function that returns an array of the elements that any two sequences have in common.
+//【練習18】修改anyCommonElements(_:_:)函式，讓函式回傳一個陣列，包含兩個序列的共同元素
+func anyCommonElements2<T: Sequence, U: Sequence>(_ lhs: T, _ rhs: U) -> [T.Element]
+where T.Element: Equatable, T.Element == U.Element {
+    //要求1.T集合中的元素，必須實作Equatable協定 2.要求T集合中的元素必須和U集合中的元素型別
+    //先準備存放共同元素的陣列
+    var commons = [T.Element]()
+    //外迴圈：跑參數1的集合
+    for lhsItem in lhs {
+        //內迴圈：跑參數2的集合
+        for rhsItem in rhs {
+            //核對參數1的集合元素是否與參數2的集合元素相同
+            if lhsItem == rhsItem {
+                //比對符合則加入共同元素
+                commons.append(rhsItem)
+            }
+        }
+    }
+    return commons
+}
+
+//呼叫函式
+anyCommonElements2([1, 2, 3], [3,1,5])
+
+//以上函式進行改版，只使用一種泛型
+func anyCommonElements3<T: Sequence>(_ lhs: T, _ rhs: T) -> [T.Element]
+    where T.Element: Equatable {
+    //要求1.T集合中的元素，必須實作Equatable協定 2.要求T集合中的元素必須和U集合中的元素型別
+
+        //先準備存放共同元素的陣列
+        var commons = [T.Element]()
+        //外迴圈：跑參數1的集合
+        for lhsItem in lhs {
+            //內迴圈：跑參數2的集合
+            for rhsItem in rhs {
+                //核對參數1的集合元素是否與參數2的集合元素相同
+                if lhsItem == rhsItem {
+                    //比對符合則加入共同元素
+                    commons.append(rhsItem)
+                }
+            }
+        }
+        return commons
+    }
+
+//呼叫函式
+anyCommonElements3([1, 2, 3], [3,1,5])
+
+//----------<補充>相等協定VS.比較協定----------
+//注意：自訂型別最好同時引入Comparable,Hashable協定
+struct Point3D:Comparable,Hashable {   //Comparable協定包含"相等協定"，且"相等協定"已提供預設實作
+    var x:Int
+    var y:Int
+    var z:Int
+    
+    //替換相等比較的預設實作
+//    static func == (lhs: Point3D, rhs: Point3D) -> Bool
+//    {
+//        if lhs.x+lhs.y+lhs.z == rhs.x+rhs.y+rhs.z {
+//            return true
+//        } else {
+//            return false
+//        }
+//    }
+    
+    //Comparable協定必須實作小於的協定方法，其他的>、>=、<=自動提供預設實作
+    static func < (lhs: Point3D, rhs: Point3D) -> Bool {
+//        if lhs.x < rhs.x && lhs.y < rhs.y && lhs.z < rhs.z {
+//            return true
+//        } else {
+//            return false
+//        }
+        if lhs.hashValue < rhs.hashValue {
+            return true
+        } else {
+            return false
+        }
+    }
+    
+}
+
+let point1 = Point3D(x: 3, y: 4, z: 5)
+let point2 = Point3D(x: 5, y: 3, z: 4)
+let point3 = Point3D(x: 4, y: 3, z: 5)
+let point4 = Point3D(x: 5, y: 3, z: 4)
+point1.hashValue
+point2.hashValue
+
+if point2 == point4 {
+    print("兩個點相等")
+} else {
+    print("兩個點不相等")
+}
+
+if point1 == point3 {
+    print("兩個點相等")
+} else {
+    print("兩個點不相等")
+}
+
+if point1 < point2 {
+    print("第一點小於第二點")
+} else {
+    print("第一點不會小於第二點")
+}
+
+if point1 >= point2 {
+    print("第一點大於等於第二點")
+} else {
+    print("第一點不會大於等於第二點")
+}
+
+var set3:Set<Point3D>
